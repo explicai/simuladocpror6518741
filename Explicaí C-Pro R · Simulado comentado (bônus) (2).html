@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0A1F1C">
+<title>Explicaí C-Pro R · Simulado comentado</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect x=%278%27 y=%278%27 width=%2784%27 height=%2768%27 rx=%2722%27 fill=%27%230F766E%27/%3E%3Cpath d=%27M22 68 L15 94 L48 74 Z%27 fill=%27%230F766E%27/%3E%3Cpath d=%27M50 42 V62%27 stroke=%27%23fff%27 stroke-width=%2713%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M46 29 L58 19%27 stroke=%27%23fff%27 stroke-width=%2710%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect x=%278%27 y=%278%27 width=%2784%27 height=%2768%27 rx=%2722%27 fill=%27%230F766E%27/%3E%3Cpath d=%27M22 68 L15 94 L48 74 Z%27 fill=%27%230F766E%27/%3E%3Cpath d=%27M50 42 V62%27 stroke=%27%23fff%27 stroke-width=%2713%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M46 29 L58 19%27 stroke=%27%23fff%27 stroke-width=%2710%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Figtree:wght@400;500;600;700;800&display=swap');
+:root{
+  --bg:#0A1F1C;--surf:#0E2723;--card:#133029;--border:#2E5A51;
+  --blue:#FFC23D;--purple:#5BE3B0;--green:#34D399;--amber:#FF8A5B;--red:#F87171;
+  --text:#F4F8F6;--muted:#94B3AC;--dim:#C9DCD7;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtree',system-ui,sans-serif;overflow:hidden}
+
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100%;height:100dvh}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--surf);border-bottom:1px solid var(--border);
+  padding:12px 14px;padding-top:calc(12px + var(--safe-t));
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  min-height:54px;
+}
+.menu-btn{
+  width:36px;height:36px;border-radius:8px;background:var(--card);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;font-size:16px;
+}
+.topbar-title{font-family:'Fraunces',Georgia,serif;font-size:14px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title b{color:var(--blue)}
+.tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.t1{background:rgba(255,194,61,.2);color:#FFD978}
+.t2{background:rgba(91,227,176,.2);color:#A7F0D2}
+.t3{background:rgba(16,185,129,.2);color:#6ee7b7}
+.t4{background:rgba(255,138,91,.2);color:#FFB899}
+.tg{background:rgba(110,143,136,.2);color:#DCEAE6}
+.tp{background:rgba(255,138,91,.2);color:#FFB899}
+
+/* ── PROGRESS ── */
+.prog-strip{height:2px;background:var(--border);flex-shrink:0}
+.prog-inner{height:100%;width:0%;background:linear-gradient(90deg,#FFC23D,#FF8A5B);transition:width .4s}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px;overscroll-behavior:contain}
+.content::-webkit-scrollbar{display:none}
+
+/* ── DRAWER OVERLAY ── */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;
+  backdrop-filter:blur(2px);
+}
+.overlay.open{display:block}
+
+/* ── DRAWER ── */
+.drawer{
+  position:fixed;left:0;top:0;bottom:0;width:min(300px,85vw);
+  background:var(--surf);z-index:101;
+  display:flex;flex-direction:column;
+  transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+  padding-top:var(--safe-t);
+}
+.drawer.open{transform:translateX(0)}
+.dw-head{padding:16px 14px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.dw-logo{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:700;color:var(--text)}
+.dw-logo b{color:var(--blue)}
+.dw-sub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.dw-close{
+  position:absolute;top:14px;right:12px;width:32px;height:32px;
+  border-radius:7px;background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;color:var(--muted);
+}
+.nav{flex:1;overflow-y:auto;padding:6px 8px;-webkit-overflow-scrolling:touch}
+.nav::-webkit-scrollbar{display:none}
+.nav-section{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px 8px 4px;font-weight:700}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:11px 10px;
+  border-radius:8px;cursor:pointer;font-size:13px;color:var(--dim);
+  margin-bottom:1px;transition:all .15s;line-height:1.3;
+}
+.nav-item:active{background:var(--card)}
+.nav-item.active{background:rgba(255,194,61,.18);color:#FFD978}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.d1{background:#FFC23D}.d2{background:#5BE3B0}.d3{background:#10b981}.d4{background:#FF8A5B}
+.nav-pct{margin-left:auto;font-size:9px;background:var(--border);border-radius:9px;padding:1px 6px;color:var(--muted)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  background:var(--surf);border-top:1px solid var(--border);
+  display:flex;flex-shrink:0;
+  padding-bottom:var(--safe-b);
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:8px 4px 7px;cursor:pointer;
+  color:var(--muted);font-size:9px;font-weight:600;letter-spacing:.02em;
+  transition:color .15s;
+}
+.bn-item.active{color:var(--blue)}
+.bn-icon{font-size:20px;line-height:1}
+
+/* ── MODE BAR ── */
+.mode-bar{
+  display:none;background:var(--surf);border-bottom:1px solid var(--border);
+  padding:8px 14px;gap:6px;flex-shrink:0;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.mode-bar::-webkit-scrollbar{display:none}
+.mode-bar.show{display:flex}
+.mode-btn{
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:11px;font-weight:600;
+  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;
+  transition:all .15s;
+}
+.mode-btn.active{background:var(--blue);border-color:var(--blue);color:#1A1300}
+
+/* ── HOME ── */
+.home-title{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.home-title span{color:var(--blue)}
+.home-desc{font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:20px}
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.mod-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;cursor:pointer;transition:border-color .2s;active:scale(.98)}
+.mod-card:active{border-color:var(--blue)}
+.mc-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.mc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mc-title{font-family:'Fraunces',Georgia,serif;font-size:12.5px;font-weight:700;line-height:1.3;color:var(--text)}
+.mc-pct{font-size:10px;color:var(--muted);margin-top:2px}
+.mc-desc{font-size:11.5px;color:var(--dim);line-height:1.55}
+.mini-bar{height:3px;background:var(--border);border-radius:3px;margin-top:10px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:3px}
+.home-actions{display:flex;flex-direction:column;gap:8px}
+.btn{padding:11px 16px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;width:100%}
+.btn-primary{background:var(--blue);color:#1A1300;box-shadow:0 8px 22px -12px rgba(255,194,61,.9)}
+.btn-primary:active{background:#FFB000}
+.btn-outline{background:var(--card);border:1px solid var(--border);color:var(--dim)}
+.btn-outline:active{border-color:var(--text);color:var(--text)}
+
+/* ── LEARN ── */
+.learn-head{margin-bottom:16px}
+.learn-title{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.learn-desc{font-size:12.5px;color:var(--dim);line-height:1.6}
+.topic-grid{display:flex;flex-direction:column;gap:8px}
+.topic-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.topic-card.open{border-color:var(--blue)}
+.topic-header{padding:13px 14px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.topic-num{font-size:10px;font-weight:700;background:var(--border);border-radius:5px;padding:2px 6px;color:var(--muted);flex-shrink:0;margin-top:2px}
+.topic-info{flex:1;min-width:0}
+.topic-title{font-weight:600;font-size:13px;margin-bottom:3px;color:var(--text);line-height:1.35}
+.topic-preview{font-size:11.5px;color:var(--muted);line-height:1.4}
+.topic-arrow{color:var(--muted);flex-shrink:0;transition:transform .2s;margin-top:3px;font-size:11px}
+.topic-card.open .topic-arrow{transform:rotate(90deg);color:var(--blue)}
+.topic-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+.topic-card.open .topic-body{display:block}
+
+/* ── CONTENT BOXES ── */
+.what-box{background:rgba(27,62,55,.75);border:1px solid rgba(46,90,81,.9);border-radius:8px;padding:12px 13px;margin:12px 0;font-size:12.5px;line-height:1.75;color:var(--dim)}
+.what-box .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#A9C4BD;margin-bottom:6px}
+.what-box strong{color:var(--text)}
+.analogy-box{background:rgba(255,194,61,.08);border:1px solid rgba(255,194,61,.25);border-radius:8px;padding:12px 13px;margin:10px 0;font-size:12.5px;line-height:1.75;color:var(--dim)}
+.analogy-box .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#FFD978;margin-bottom:6px}
+.analogy-box strong{color:var(--text)}
+.story-box{background:rgba(91,227,176,.07);border:1px solid rgba(91,227,176,.25);border-radius:8px;padding:12px 13px;margin:10px 0;font-size:12.5px;line-height:1.8;color:var(--dim)}
+.story-box .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#A7F0D2;margin-bottom:6px}
+.story-box strong{color:var(--text)}
+.story-box em{color:#A7F0D2;font-style:normal;font-weight:600}
+.how-box{font-size:12.5px;line-height:1.8;color:var(--dim);margin:10px 0}
+.how-box strong{color:var(--text)}
+.how-box em{color:#FFD978;font-style:normal;font-weight:600}
+.connect-row{display:flex;flex-direction:column;gap:7px;margin:10px 0}
+.connect-chip{font-size:12.5px;line-height:1.6;color:var(--dim);display:flex;align-items:flex-start;gap:8px;padding:8px 11px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:7px}
+.connect-chip::before{content:"→";color:#34d399;font-weight:700;flex-shrink:0;margin-top:1px}
+.connect-chip strong{color:var(--text)}
+.prova-box{background:rgba(255,138,91,.07);border:1px solid rgba(255,138,91,.25);border-radius:8px;padding:12px 13px;margin:10px 0}
+.prova-box .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#FFB899;margin-bottom:8px}
+.prova-list{display:flex;flex-direction:column;gap:8px}
+.prova-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.6;color:var(--dim)}
+.prova-item .pi-icon{flex-shrink:0;margin-top:2px;color:#FF9E73;font-size:10px}
+.prova-item strong{color:var(--text)}
+.prova-item em{color:#FFB899;font-style:normal;font-weight:600}
+.sec-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 6px}
+
+/* ── GLOSSÁRIO ── */
+.gloss-search{width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;font-family:inherit;margin-bottom:12px;outline:none;-webkit-appearance:none}
+.gloss-search:focus{border-color:var(--blue)}
+.gloss-search::placeholder{color:var(--muted)}
+.gloss-filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.gloss-filter-row::-webkit-scrollbar{display:none}
+.gf-btn{font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.gf-btn.active{background:var(--blue);border-color:var(--blue);color:#1A1300}
+.gloss-grid{display:flex;flex-direction:column;gap:8px}
+.gloss-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 14px}
+.gc-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.gc-sigla{font-family:'Fraunces',Georgia,serif;font-size:15px;font-weight:700;color:var(--text)}
+.gc-cat{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.gc-nome{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.gc-def{font-size:12.5px;color:var(--dim);line-height:1.6;margin-bottom:6px}
+.gc-why{font-size:12px;color:#A9C4BD;line-height:1.55;border-top:1px solid var(--border);padding-top:6px}
+.gc-why strong{color:var(--dim)}
+
+/* ── MERCADOS ── */
+.mkt-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mkt-tabs::-webkit-scrollbar{display:none}
+.mkt-tab{font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.mkt-tab.active{background:var(--blue);border-color:var(--blue);color:#1A1300}
+.mkt-hero{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.mkt-hero-title{font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:700;margin-bottom:5px;color:var(--text)}
+.mkt-hero-desc{font-size:12.5px;color:var(--dim);line-height:1.65}
+.mkt-regula{font-size:11.5px;color:var(--muted);margin-top:7px}
+.mkt-regula strong{color:#FFD978}
+.mkt-section{margin-bottom:14px}
+.mkt-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.mkt-products{display:flex;flex-direction:column;gap:6px}
+.mkt-prod{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.mkt-prod-name{font-weight:700;font-size:12.5px;color:var(--text);margin-bottom:3px}
+.mkt-prod-desc{font-size:12px;color:var(--dim);line-height:1.5}
+.mkt-limits{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:11px 13px}
+.mkt-limits .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#fca5a5;margin-bottom:7px}
+.mkt-limits ul{padding-left:14px;font-size:12px;color:var(--dim);line-height:1.75}
+
+/* ── MANUAL ── */
+.manual-step{background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:8px;overflow:hidden}
+.manual-step-header{padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.ms-icon{font-size:18px;flex-shrink:0}
+.ms-title{font-size:12.5px;font-weight:600;color:var(--text);flex:1;line-height:1.35}
+.ms-arrow{color:var(--muted);font-size:11px;transition:transform .2s;flex-shrink:0}
+.manual-step.open .ms-arrow{transform:rotate(90deg);color:var(--blue)}
+.manual-step.open .manual-step-header{border-bottom:1px solid var(--border)}
+.manual-body{display:none;padding:13px}
+.manual-step.open .manual-body{display:block}
+.mb-block{margin-bottom:12px}
+.mb-block:last-child{margin-bottom:0}
+.mb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.lb-context{color:#A9C4BD}.lb-identify{color:#34d399}.lb-analyze{color:#FFC23D}
+.lb-offer{color:#c084fc}.lb-objection{color:#FF9E73}.lb-avoid{color:#f87171}
+.mb-text{font-size:12.5px;line-height:1.75;color:var(--dim)}
+.mb-text strong{color:var(--text)}
+.mb-text em{color:#FFB899;font-style:normal;font-weight:600}
+
+/* ── SOFT SKILLS ── */
+.ss-grid{display:flex;flex-direction:column;gap:8px}
+.ss-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.ss-card.open{border-color:#FF8A5B}
+.ss-card-head{padding:13px 14px;display:flex;align-items:flex-start;gap:11px;cursor:pointer}
+.ss-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.ss-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px}
+.ss-tagline{font-size:11.5px;color:var(--muted);line-height:1.4}
+.ss-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+.ss-card.open .ss-body{display:block}
+.ss-section{margin-top:12px}
+.ss-section-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.ssl-what{color:#A9C4BD}.ssl-why{color:#FFC23D}.ssl-how{color:#34d399}
+.ssl-signal{color:#f87171}.ssl-work{color:#FF9E73}
+.ss-text{font-size:12.5px;line-height:1.75;color:var(--dim)}
+.ss-text strong{color:var(--text)}
+.ss-text em{color:#FFB899;font-style:normal;font-weight:600}
+
+/* ── QUIZ ── */
+.quiz-wrap{max-width:100%}
+.q-score-bar{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:14px}
+.q-circle{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;color:var(--text)}
+.q-text{font-size:14px;font-weight:500;line-height:1.65;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:12px;color:var(--text)}
+.q-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.q-opt{padding:13px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;text-align:left;color:var(--dim);font-family:inherit;line-height:1.5;-webkit-appearance:none;width:100%}
+.q-opt:active:not(:disabled){border-color:var(--blue);background:rgba(255,194,61,.08);color:var(--text)}
+.q-opt.correct{border-color:#10b981!important;background:rgba(16,185,129,.12)!important;color:#86efac!important}
+.q-opt.wrong{border-color:#ef4444!important;background:rgba(239,68,68,.1)!important;color:#fca5a5!important}
+.q-opt:disabled{cursor:default}
+.q-fb{display:none;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.7;margin-bottom:12px}
+.q-fb.correct{display:block;background:rgba(16,185,129,.1);border:1px solid rgba(74,222,128,.25);color:#86efac}
+.q-fb.wrong{display:block;background:rgba(239,68,68,.09);border:1px solid rgba(252,165,165,.25);color:#fca5a5}
+.q-actions{display:flex;gap:8px}
+
+/* ── FLASHCARD ── */
+.fc-wrap{max-width:100%;text-align:center}
+.fc-title{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:700;margin-bottom:14px;text-align:left;color:var(--text)}
+.fc-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:28px 20px;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:14px}
+.fc-card:active{border-color:var(--blue)}
+.fc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:12px;font-weight:700}
+.fc-front{font-size:15px;font-weight:500;line-height:1.6;color:var(--text)}
+.fc-back{display:none;text-align:left;font-size:12.5px;line-height:1.75;color:var(--dim);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);width:100%}
+.fc-back.show{display:block}
+.fc-back strong{color:var(--text)}
+.fc-hint{font-size:11px;color:var(--muted);margin-top:10px}
+.fc-nav-row{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+.fc-count{font-size:12px;color:var(--muted)}
+
+/* ── RESULT ── */
+.result-wrap{text-align:center;padding-top:16px}
+.result-emoji{font-size:52px;margin-bottom:12px}
+.result-title{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.result-pct{font-size:48px;font-weight:700;margin:10px 0}
+.result-sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+.result-actions{display:flex;flex-direction:column;gap:8px}
+
+/* ── EXPLICAÍ: marca ── */
+.brand{display:flex;align-items:center;gap:8px;cursor:pointer}
+.brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(255,194,61,.35))}
+.brand .wm{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:20px;letter-spacing:-.02em;color:var(--text);line-height:1}
+.brand .wm-tag{background:var(--blue);color:#1A1300;font-size:9.5px;font-weight:800;border-radius:20px;padding:3px 7px;letter-spacing:.04em}
+.dw-logo.brand .brand-mark{width:30px;height:30px}
+.dw-logo.brand .wm{font-size:22px}
+.dw-sub{text-transform:none!important;letter-spacing:0!important;font-size:11.5px!important;line-height:1.4;margin-top:8px!important;padding-right:34px}
+.bn-svg{width:22px;height:22px}
+.bn-item.active .bn-svg{filter:drop-shadow(0 0 8px rgba(255,194,61,.45))}
+.home-hello{background:radial-gradient(120% 120% at 0% 0%,rgba(255,194,61,.14),transparent 60%),var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+.home-hello .home-desc{margin-bottom:0}
+.prac-hero{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:linear-gradient(135deg,rgba(255,138,91,.16),rgba(255,194,61,.1));border:1px solid rgba(255,138,91,.4);border-radius:12px;padding:14px;margin-bottom:14px;cursor:pointer;font-family:inherit;color:var(--text)}
+.ph-ico{font-size:24px}
+.ph-title{display:block;font-weight:800;font-size:14px}
+.ph-sub{display:block;font-size:12px;color:var(--dim);margin-top:2px;line-height:1.4}
+.ph-go{margin-left:auto;font-size:24px;color:var(--blue)}
+
+/* ── PRÁTICA ── */
+.seg{display:flex;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:14px}
+.seg-btn{flex:1;padding:9px 6px;border-radius:8px;border:0;background:transparent;color:var(--dim);font-weight:700;font-size:12px;font-family:inherit;cursor:pointer}
+.seg-btn.active{background:var(--blue);color:#1A1300}
+.sim-how{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+.sim-how div{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px;font-size:11px;color:var(--dim);line-height:1.35}
+.sim-how b{display:flex;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#1A1300;align-items:center;justify-content:center;font-size:11px;margin-bottom:5px}
+.sim-list{display:flex;flex-direction:column;gap:8px}
+.sim-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px;cursor:pointer;font-family:inherit;color:var(--text)}
+.sim-card:active{border-color:var(--blue)}
+.sim-ico{font-size:24px;flex-shrink:0}
+.sim-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.sim-place{align-self:flex-start;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#FFD978;background:rgba(255,194,61,.14);padding:2px 7px;border-radius:20px}
+.sim-place.coop{color:#A7F0D2;background:rgba(91,227,176,.14)}
+.sim-title{font-weight:700;font-size:13.5px;line-height:1.3}
+.sim-cli{font-size:11.5px;color:var(--muted)}
+.sim-best{font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0}
+.sim-wrap{display:flex;flex-direction:column;gap:12px}
+.back-link{align-self:flex-start;background:none;border:0;color:var(--blue);font-weight:700;font-size:12.5px;font-family:inherit;cursor:pointer;padding:0}
+.sim-head{display:flex;flex-direction:column;gap:6px}
+.sim-h-title{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:700;line-height:1.2}
+.cli-card{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px}
+.cli-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#FFC23D,#FF8A5B);color:#1A1300;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.cli-avatar.sm{width:34px;height:34px;font-size:14px}
+.cli-name{font-weight:700;font-size:13.5px}
+.cli-perfil{font-size:12px;color:var(--dim);line-height:1.45;margin-top:2px}
+.sim-intro{font-size:13.5px;line-height:1.7;color:var(--dim)}
+.sim-skills{font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sim-skills span{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 9px;color:var(--dim)}
+.sim-progress{height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.sim-progress span{display:block;height:100%;background:linear-gradient(90deg,#FFC23D,#FF8A5B)}
+.sim-stepn{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bubble-row{display:flex;gap:10px;align-items:flex-end}
+.bubble{background:#F4F8F6;color:#0E2723;border-radius:16px 16px 16px 4px;padding:12px 14px;font-size:14px;line-height:1.55;font-weight:500}
+.sim-q{font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:700}
+.q-opt.partial{border-color:#FF9E73!important;background:rgba(255,138,91,.1)!important;color:#FFD2BF!important}
+.sim-fb{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.65}
+.sim-fb.show{display:block}
+.sim-fb.ok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.35)}
+.sim-fb.mid{background:rgba(255,138,91,.1);border:1px solid rgba(255,138,91,.35)}
+.sim-fb.bad{background:rgba(248,113,113,.09);border:1px solid rgba(248,113,113,.35)}
+.fb-title{font-weight:800;margin-bottom:4px;color:var(--text)}
+.fb-text{color:var(--dim)}
+.fb-axes{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ax{font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 8px;background:var(--card);border:1px solid var(--border);color:var(--dim);letter-spacing:.02em}
+.ax2{color:#86EFAC}.ax1{color:#FFB899}.ax0{color:#FCA5A5}
+.res-card{background:radial-gradient(120% 100% at 50% 0%,rgba(255,194,61,.16),transparent 65%),var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center}
+.res-pct{font-family:'Fraunces',Georgia,serif;font-size:48px;font-weight:700;color:var(--blue);line-height:1}
+.res-nivel{font-weight:700;margin:6px 0 14px}
+.res-axes{display:flex;flex-direction:column;gap:9px;text-align:left}
+.res-ax-top{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:4px}
+.res-ax-top b{color:var(--text)}
+.res-bar{height:6px;background:var(--border);border-radius:6px;overflow:hidden}
+.res-bar span{display:block;height:100%;background:linear-gradient(90deg,#FFC23D,#FF8A5B)}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:7px 11px;font-size:12px;color:var(--text);font-family:inherit;cursor:pointer;text-align:left}
+.chip:active{border-color:var(--blue)}
+
+/* ── SOFT SKILLS: treino ── */
+.ss-card.open .topic-arrow{transform:rotate(90deg);color:var(--blue)}
+.say-list{display:flex;flex-direction:column;gap:6px}
+.say{font-size:12.5px;line-height:1.5;padding:8px 11px;border-radius:8px}
+.say.ok{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#D1FAE5}
+.say.no{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);color:#FECACA}
+.drill{background:rgba(255,194,61,.06);border:1px solid rgba(255,194,61,.25);border-radius:10px;padding:12px}
+.drill-q{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:10px;font-weight:600}
+.drill .q-opts{margin-bottom:8px}
+
+/* ── LEITURA EM PAPEL CLARO (áreas abertas) ── */
+.topic-body,.ss-body,.manual-body{
+  --text:#16241F;--dim:#33423E;--muted:#5D6C67;--border:#DDD6C6;--card:#FFFDF8;
+  background:#F4F1E9;color:#33423E;border-top:0!important;
+}
+.topic-card.open,.ss-card.open,.manual-step.open{border-color:#FFC23D;background:#F4F1E9}
+.topic-card.open .topic-header,.ss-card.open .ss-card-head,.manual-step.open .manual-step-header{background:var(--card)}
+.manual-step.open .manual-step-header{border-bottom:0!important}
+.topic-body{padding:4px 16px 18px}
+.ss-body,.manual-body{padding:6px 16px 18px}
+.topic-body strong,.ss-body strong,.manual-body strong{color:#12211D}
+.topic-body .what-box,.topic-body .analogy-box,.topic-body .story-box,.topic-body .how-box,.topic-body .connect-chip,.topic-body .prova-item,
+.ss-body .ss-text,.ss-body .say,.manual-body .mb-text,.manual-body [style*="font-size:12.5px"]{font-size:14.5px;line-height:1.78}
+.topic-body .label,.ss-body .ss-section-lbl,.manual-body .mb-label,.topic-body .sec-label{font-size:10.5px;letter-spacing:.07em}
+.topic-body .what-box{background:#FFFDF8;border-color:#E3DCCB}
+.topic-body .what-box .label{color:#5D6C67}
+.topic-body .analogy-box{background:#FFF4D6;border-color:#EFD27F}
+.topic-body .analogy-box .label{color:#7A4F00}
+.topic-body .story-box{background:#E9F5EF;border-color:#BFE0CF}
+.topic-body .story-box .label,.topic-body .story-box em{color:#1B6149}
+.topic-body .how-box em{color:#7A4F00}
+.topic-body .connect-chip{background:#FFFDF8;border-color:#CFE6DA}
+.topic-body .connect-chip::before{color:#1F8A60}
+.topic-body .prova-box{background:#FCEBE3;border-color:#F0B9A2}
+.topic-body .prova-box .label,.topic-body .prova-item em{color:#9A3412}
+.topic-body .prova-item .pi-icon{color:#C2410C}
+.ss-body .ssl-what{color:#5D6C67}.ss-body .ssl-why{color:#7A4F00}.ss-body .ssl-how{color:#1B6149}
+.ss-body .ssl-signal{color:#B42318}.ss-body .ssl-work{color:#9A3412}
+.ss-body .ss-text em,.manual-body .mb-text em{color:#9A3412}
+.ss-body .say.ok{background:#E7F5EC;border-color:#A9D9BE;color:#14532D}
+.ss-body .say.no{background:#FBEAE8;border-color:#EFB8B3;color:#8A1C1C}
+.ss-body .drill{background:#FFF4D6;border-color:#EFD27F}
+.ss-body .q-opt{background:#FFFDF8;color:#33423E;border-color:#DDD6C6}
+.ss-body .q-opt.correct{background:#E7F5EC!important;border-color:#2E9E6A!important;color:#14532D!important}
+.ss-body .q-opt.wrong{background:#FBEAE8!important;border-color:#D9534F!important;color:#8A1C1C!important}
+.ss-body .sim-fb.ok{background:#E7F5EC;border-color:#A9D9BE}
+.ss-body .sim-fb.bad{background:#FBEAE8;border-color:#EFB8B3}
+.ss-body .chip{background:#FFFDF8;border-color:#DDD6C6;color:#16241F}
+.manual-body .lb-context{color:#5D6C67}.manual-body .lb-identify{color:#1B6149}.manual-body .lb-analyze{color:#7A4F00}
+.manual-body .lb-offer{color:#1B6149}.manual-body .lb-objection{color:#9A3412}.manual-body .lb-avoid{color:#B42318}
+.manual-body [style*="color:#FFB899"]{color:#9A3412!important}
+.manual-body [style*="background:rgba(255,138,91,.06)"]{background:#FCEBE3!important;border-color:#F0B9A2!important}
+.manual-body [style*="background:rgba(239,68,68,.07)"]{background:#FBEAE8!important;border-color:#EFB8B3!important}
+
+.fontes-box{margin:10px 0 4px;padding:10px 12px;border-radius:8px;border:1px dashed rgba(244,248,246,.18)}
+.fontes-box .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:6px}
+.fontes-box ul{margin:0;padding-left:16px;font-size:11.5px;line-height:1.55;color:var(--dim)}
+.topic-body .fontes-box{border-color:#D9D2C2}
+.topic-body .fontes-box .label,.topic-body .fontes-box ul{color:#5D6C67}
+.soon-box{margin:6px 0 14px;padding:14px;border-radius:12px;background:rgba(255,194,61,.08);border:1px solid rgba(255,194,61,.3);font-size:13px;line-height:1.55;color:var(--dim)}
+.soon-box strong{color:var(--text)}
+.mc-soon{display:inline-block;margin-left:6px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#1A1300;background:#FFC23D;border-radius:999px;padding:2px 7px}
+</style>
+<style>.sm-intro{padding-top:4px}
+.sm-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--blue);background:rgba(255,194,61,.12);border:1px solid rgba(255,194,61,.3);border-radius:20px;padding:4px 10px;margin-bottom:10px}
+.sm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sm-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.sm-stat b{display:block;font-family:'Fraunces',Georgia,serif;font-size:16px;color:var(--text)}
+.sm-stat span{font-size:10px;color:var(--muted)}
+.sm-src{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.sm-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sm-meta span{font-size:10px;font-weight:700;color:var(--dim);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:3px 9px}
+.sm-meta .sm-facil{color:#86efac}.sm-meta .sm-medio{color:#FFD2BF}.sm-meta .sm-dificil{color:#fca5a5}
+.sm-case{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px}
+.sm-ctx{font-size:13.5px;line-height:1.7;color:var(--dim);background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.sm-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.sm-fb{border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.7;color:var(--dim);background:var(--card);border:1px solid var(--border)}
+.sm-fb.ok{border-color:rgba(74,222,128,.4)}.sm-fb.no{border-color:rgba(252,165,165,.4)}
+.sm-fb-head{font-weight:700;font-size:14px;margin-bottom:10px;color:var(--text)}
+.sm-sec{margin-bottom:12px}
+.sm-sec ul{margin:0;padding-left:18px}.sm-sec li{margin-bottom:6px}
+.sm-key{background:rgba(255,194,61,.1);border:1px solid rgba(255,194,61,.3);border-radius:8px;padding:9px 11px;color:var(--text);font-weight:600;margin-bottom:10px}
+.sm-note{background:rgba(159,183,255,.1);border:1px solid rgba(159,183,255,.35);border-radius:8px;padding:9px 11px;margin-bottom:10px}
+.sm-topic{width:100%;text-align:left;background:transparent;border:1px dashed var(--border);border-radius:8px;padding:9px 11px;color:var(--purple);font-size:12.5px;font-weight:600;cursor:pointer}
+.sm-mods{display:grid;gap:8px;margin:16px 0}
+.sm-mod{display:grid;grid-template-columns:80px 1fr 44px;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
+.sm-bar{height:8px;background:var(--border);border-radius:6px;overflow:hidden}.sm-bar i{display:block;height:100%;background:var(--purple)}
+.sm-mod-n{text-align:right;font-weight:700;color:var(--text)}
+.sm-list{display:grid;gap:6px;margin-bottom:12px}
+.sm-li{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--dim);font-size:12.5px;line-height:1.5;cursor:pointer}
+.sm-li b{color:var(--blue);min-width:18px}.sm-li span{flex:1}.sm-li em{font-style:normal;font-size:10px;color:var(--muted)}
+.sm-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:6px;scrollbar-width:none}
+.sm-nav::-webkit-scrollbar{display:none}
+.sm-n{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--dim);font-size:12px;font-weight:700;cursor:pointer}
+.sm-n.ok{border-color:#10b981;color:#86efac}.sm-n.no{border-color:#ef4444;color:#fca5a5}
+.sm-n.cur{background:var(--blue);border-color:var(--blue);color:#1A1300}
+</style>
+<style>.content{padding-bottom:calc(24px + var(--safe-b))}.sm-topic{cursor:default}</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  
+  <div class="topbar-title brand" onclick="startSimu()"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><rect x="8" y="8" width="84" height="68" rx="22" fill="#F4F8F6"/><path d="M22 68 L15 94 L48 74 Z" fill="#F4F8F6"/><path d="M50 42 V62" stroke="#0E2723" stroke-width="13" stroke-linecap="round" fill="none"/><path d="M46 29 L58 19" stroke="#0E2723" stroke-width="10" stroke-linecap="round" fill="none"/></svg><span class="wm">explicaí</span><span class="wm-tag">C-Pro R</span></div>
+  <span class="tag t1" id="topTag">Bônus</span>
+</header>
+<div class="prog-strip"><div class="prog-inner" id="progBar"></div></div>
+<div class="content" id="content"></div>
+</div>
+<script>
+const modules = [{"title":"Prospecção e relacionamento","topics":[{"num":"1.1","title":"Finanças tradicionais x finanças comportamentais"},{"num":"1.2","title":"Heurísticas: os atalhos que o cérebro usa para decidir"},{"num":"1.3","title":"Vieses: framing, confirmação, autoatribuição, status quo e manada"},{"num":"1.4","title":"Emoções, ESG, investidor individual x institucional e o efeito no mercado"},{"num":"1.5","title":"Bets x investimentos: a diferença que o cliente precisa entender"},{"num":"1.6","title":"Finanças comportamentais na prática: estratégias, risco e como reduzir vieses"},{"num":"1.7","title":"O investidor brasileiro em números (Raio X ANBIMA)"},{"num":"1.8","title":"Prospecção e habilidades comerciais"},{"num":"1.9","title":"Coleta de informações: objetivos e situação financeira do cliente"},{"num":"1.10","title":"Código ANBIMA de Distribuição: as regras do dia a dia"},{"num":"1.11","title":"Suitability na Resolução CVM 30"},{"num":"1.12","title":"Relacionamento com clientes: CMN 4.949, BCB 155 e Resolução Conjunta 8"}]},{"title":"Análise de informações do cliente","topics":[{"num":"2.1","title":"Capacidade de poupança: renda, idade e padrão de vida"},{"num":"2.2","title":"Planejamento financeiro e a poupança do país"},{"num":"2.3","title":"Reserva de emergência para cada perfil de cliente"},{"num":"2.4","title":"Balanço patrimonial pessoal, cobertura de despesas e índice de poupança"},{"num":"2.5","title":"Liquidez: o que é, quanto custa e como medir"},{"num":"2.6","title":"Endividamento: quanto da renda já tem dono"},{"num":"2.7","title":"Análise do perfil do investidor: de onde vem o conservador, o moderado e o arrojado"},{"num":"2.8","title":"Tipos de investidor: comum, qualificado e profissional"},{"num":"2.9","title":"Ciclo de vida do investidor: acumulação, consolidação e usufruto"}]},{"title":"Indicação de investimentos","topics":[{"num":"3.1","title":"Asset allocation: como montar a carteira do cliente"},{"num":"3.2","title":"Renda fixa: riscos, remuneração e marcação a mercado"},{"num":"3.3","title":"Títulos públicos e dívida pública federal"},{"num":"3.4","title":"Emissões bancárias, títulos de crédito e o FGC"},{"num":"3.5","title":"Emissões corporativas: debêntures, ofertas públicas, garantias e covenants"},{"num":"3.6","title":"Tributação da renda fixa e rentabilidade líquida"},{"num":"3.7","title":"Mercado de ações: IPO, OPA, tipos de ação e riscos"},{"num":"3.8","title":"Proventos, tributação de ações, aluguel e eventos societários"},{"num":"3.9","title":"Filosofias de investimento, alocação em renda variável e índices"},{"num":"3.10","title":"Derivativos: futuros, opções e swaps"},{"num":"3.11","title":"COE: Certificado de Operações Estruturadas"},{"num":"3.12","title":"Fundos de investimento: estrutura, documentos e o papel do distribuidor"},{"num":"3.13","title":"ETFs e fundos ESG"},{"num":"3.14","title":"Fundos imobiliários (FII) e Fiagro"},{"num":"3.15","title":"Tributação dos fundos, come-cotas, incentivados e PL negativo"},{"num":"3.16","title":"Outros fundos: FIDC, exclusivos, FoF, FIP e clubes"},{"num":"3.17","title":"Câmbio e renda fixa internacional"},{"num":"3.18","title":"Ações no exterior, índices globais e a tributação da Lei 14.754"},{"num":"3.19","title":"Previdência Social e o tamanho da lacuna"},{"num":"3.20","title":"Previdência complementar: os quatro pilares, PGBL e VGBL"},{"num":"3.21","title":"Regimes de tributação e conceitos técnicos da previdência"},{"num":"3.22","title":"Fundos previdenciários, portabilidade, CNSP 382 e previdência corporativa"},{"num":"3.23","title":"Bitcoin e Ethereum: como funcionam e quais são as teses"},{"num":"3.24","title":"Tokens, stablecoins, NFTs, formas de acesso e cripto na carteira"}]},{"title":"Análise de portfólio e monitoramento","topics":[{"num":"4.1","title":"Política monetária: juros, oferta de moeda e expectativas"},{"num":"4.2","title":"Política fiscal: gastos, carga tributária e sustentabilidade da dívida"},{"num":"4.3","title":"Como o cenário mexe na renda fixa, na renda variável e nos criptoativos"},{"num":"4.4","title":"Revisão do perfil e indicadores de performance"},{"num":"4.5","title":"Rebalanceamento: por calendário, por bandas e as estratégias dinâmicas"},{"num":"4.6","title":"Eventos de vida e novos objetivos"},{"num":"4.7","title":"Transferência de custódia, portabilidade e resgate antecipado"},{"num":"4.8","title":"Tributação e rebalanceamento"},{"num":"4.9","title":"Risco e retorno, dominância e o risco de uma carteira"},{"num":"4.10","title":"Beta, risco sistemático e medidas de performance: Sharpe e Treynor"}]}];
+let curMod=null;
+// SIMULADO COMENTADO C-PRO R · questões adaptadas do caderno de questões da ANBIMA (mesmo conceito, item do programa, nível e dificuldade)
+const SIMU_INFO = {
+  titulo:"Simulado comentado C-Pro R",
+  sub:"36 questões no estilo do exame, com comentário de cada alternativa",
+  fonte:"Questões adaptadas do caderno de questões da C-Pro R (ANBIMA), reescritas com novos personagens e números. O gabarito segue o do caderno, e os comentários são do Explicaí."
+};
+const SIMU = [
+{id:"1",pd:"1.3",nivel:"Análise",dif:"Fácil",tema:"1.7",
+ ctx:"Rodrigo, 36 anos, quer se aposentar aos 65 e começar uma reserva de longo prazo. Ele pensa em aplicar tudo em CDBs de liquidez diária para poder resgatar quando quiser. Perguntado sobre reserva de emergência, conta que já tem 12 meses de despesas num fundo DI de liquidez diária.",
+ q:"A recomendação mais adequada do profissional é:",
+ opts:["Manter os novos aportes em CDBs de liquidez diária, já que o cliente valoriza flexibilidade.","Seguir reforçando o fundo DI, porque o cliente ainda não parece confortável com a reserva.","Diversificar os novos aportes com produtos de longo prazo, porque a flexibilidade já está garantida pela reserva de emergência.","Trocar o fundo DI por Tesouro Selic, que tem vantagem tributária e duration maior."],
+ c:2,
+ why:"A reserva de emergência já cumpre o papel de liquidez. O novo objetivo, a aposentadoria daqui a quase 30 anos, pede ativos de horizonte longo. Cada objetivo ganha a carteira que combina com o prazo dele.",
+ wrong:["Repete a lógica da reserva para um objetivo de 30 anos. Liquidez diária para o longo prazo custa retorno sem necessidade.","Doze meses de despesas já é uma reserva robusta. Nada no caso indica desconforto.",null,"O Tesouro Selic não tem vantagem tributária sobre o fundo DI nesse sentido, e duration maior não é o objetivo de uma reserva. A troca também não resolve a aposentadoria."],
+ key:"Separe objetivos por prazo: reserva de emergência em liquidez, aposentadoria em ativos de longo prazo."},
+
+{id:"2a",pd:"1.5.4",nivel:"Análise",dif:"Médio",tema:"1.9",caso:"Caso: o plano de Lívia e Otávio",
+ ctx:"Lívia é fotógrafa autônoma com renda variável. Otávio é empregado com salário fixo e um bônus anual em ações da empresa, perto de R$ 20 mil por ano. O casal faz declaração completa, gosta de aportes automáticos corrigidos por inflação e aceita oscilações moderadas com regras claras. A renda conjunta é de R$ 22 mil por mês, com R$ 12 mil de despesas essenciais e R$ 5 mil discricionárias. Na capacidade de poupança, a profissional considera só metade do bônus. Eles têm reserva de 4 meses de despesas (a meta é 6 a 12), a casa própria e um terreno que querem vender em até 18 meses, sem certeza de preço e prazo. Objetivos: reforma da casa em 3 anos (meta de R$ 300 mil, já têm R$ 90 mil), estudos da filha a partir de 9 ou 10 anos, aposentadoria em 14 anos com renda real e uma reserva de longo prazo para saúde e legado. A profissional organiza tudo em três camadas: liquidez (metas até 36 meses), proteção do poder de compra (9 a 10 anos) e crescimento (a partir de 14 anos, até 30% do patrimônio financeiro).",
+ q:"A ação mais adequada para embasar o plano do casal é estruturar as metas:",
+ opts:["Por prazo, sem hierarquia entre os objetivos, tratando o bônus como renda recorrente e revisando só quando algo mudar.","Em etapas coerentes, identificando limitações e riscos, separando fontes e prazos e definindo critérios de aporte, ajustes e revisão periódica.","Com base nos extratos recentes e no retorno passado, juntando objetivos diferentes e revisando em momentos de oscilação.","Conforme os vencimentos e os produtos preferidos, apoiando o plano na venda do terreno e aportando quando sobrar dinheiro."],
+ c:1,
+ why:"Um plano sólido organiza metas por prazo e prioridade, reconhece riscos (terreno incerto, bônus variável) e define regras de aporte e de revisão. Isso cria uma base objetiva e evita que o perfil de risco e a liquidez saiam do controle.",
+ wrong:["Sem hierarquia, tudo compete pelo mesmo dinheiro. E tratar bônus como renda fixa infla a capacidade de poupança.",null,"Retorno passado não projeta fluxo futuro, e misturar objetivos com prazos diferentes desalinha liquidez e risco.","Amarrar o plano à venda incerta do terreno e aportar só quando sobra tira a disciplina do plano."],
+ key:"Planejamento: metas por prazo e prioridade, riscos mapeados, regras de aporte e revisão."},
+
+{id:"2b",pd:"1.5.4",nivel:"Análise",dif:"Médio",tema:"1.9",caso:"Caso: o plano de Lívia e Otávio",
+ ctx:"Continuação do caso de Lívia e Otávio.",
+ q:"Para garantir que as metas estejam de acordo com o fluxo real de dinheiro do casal, a ação mais adequada é:",
+ opts:["Tratar o bônus em ações como dinheiro disponível na hora, adiar a revisão da reserva e priorizar o retorno nominal.","Usar a renda variável de Lívia como referência, estimar despesas sem detalhar e tratar o terreno como caixa.","Considerar a reserva atual suficiente e agrupar metas sem prazos para decidir depois.","Consolidar rendas e gastos de forma padronizada, mapear variações e restrições, registrar eventos previstos e organizar as metas em categorias."],
+ c:3,
+ why:"Uma coleta padronizada mostra onde o fluxo varia, quais restrições existem e quais eventos vão afetar as metas. Com isso, as prioridades ficam claras e o plano se mantém coerente ao longo do tempo.",
+ wrong:["Bônus em ações não é caixa imediato, e a reserva abaixo da meta precisa de atenção agora.","A renda variável deve ser tratada com prudência, e o terreno ainda não virou dinheiro.","Quatro meses está abaixo da meta definida, e metas sem prazo não orientam decisão.",null],
+ key:"Coleta padronizada: rendas, gastos, variações, restrições e eventos previstos."},
+
+{id:"3",pd:"2.1.3",nivel:"Aplicação",dif:"Fácil",tema:"2.1",
+ ctx:"Sérgio, 45 anos, casado e com dois filhos, tem renda líquida de R$ 9 mil por mês. As despesas fixas (moradia, alimentação e transporte) somam R$ 6,5 mil e os gastos variáveis ficam perto de R$ 1,5 mil. Ele pensa em fazer uma pós-graduação de R$ 2.500 por mês e pergunta se a renda cobre as despesas da família.",
+ q:"Quanto ao equilíbrio financeiro atual, a profissional deve explicar que a renda de Sérgio:",
+ opts:["Não cobre as despesas atuais, e ele precisa cortar despesas fixas.","Cobre as despesas atuais, desde que a pós-graduação custe até R$ 2.500.","Cobre as despesas atuais, apesar de as despesas fixas serem altas.","Cobre as despesas atuais, se as despesas fixas ficarem abaixo de R$ 9 mil."],
+ c:2,
+ why:"Hoje ele gasta R$ 8 mil (6,5 + 1,5) e ganha R$ 9 mil, então sobra R$ 1 mil. A renda cobre as despesas atuais, com margem pequena. A pós-graduação ainda não é despesa, e somá-la deixaria o orçamento negativo, o que é outro assunto.",
+ wrong:["As despesas atuais cabem na renda.","Mistura uma despesa futura com o equilíbrio de hoje. Com a pós, o gasto iria a R$ 10,5 mil, acima da renda.",null,"O critério é o total de despesas, não só as fixas."],
+ key:"Equilíbrio financeiro: renda líquida contra despesas totais atuais."},
+
+{id:"4",pd:"2.1.3",nivel:"Aplicação",dif:"Médio",tema:"2.4",
+ ctx:"Bianca começou a investir há pouco e tem dívidas maiores que tudo o que possui em bens e aplicações. A profissional apresenta o balanço patrimonial pessoal como ferramenta para reorganizar as finanças.",
+ q:"Na situação de Bianca, o balanço patrimonial pessoal vai:",
+ opts:["Mostrar que ela tem patrimônio líquido negativo.","Calcular sua receita mensal.","Melhorar a rentabilidade dos investimentos.","Ajudá-la a identificar investimentos complexos."],
+ c:0,
+ why:"Patrimônio líquido = ativos − passivos. Se as dívidas superam os ativos, o resultado é negativo. É o retrato do que a pessoa tem menos o que deve.",
+ wrong:[null,"Receita mensal vem do fluxo de caixa (orçamento), não do balanço, que é uma foto do patrimônio.","O balanço é diagnóstico. Não mexe no retorno das aplicações.","Não é função do balanço classificar produtos."],
+ key:"Balanço pessoal = foto (ativos − passivos). Fluxo de caixa = filme (receitas − despesas)."},
+
+{id:"5",pd:"2.1.4.4",nivel:"Aplicação",dif:"Médio",tema:"2.3",
+ ctx:"Três clientes pedem orientação sobre reserva de emergência. Caio, 27 anos, solteiro, sem dependentes, trabalha numa startup com baixa estabilidade e gasta R$ 3 mil por mês. Renata, 41 anos, casada, dois filhos, servidora pública concursada, gasta R$ 12 mil por mês. Augusto, 56 anos, empresário, tem renda que oscila entre R$ 12 mil e R$ 40 mil e despesas fixas de R$ 18 mil.",
+ q:"A recomendação mais adequada é reserva de:",
+ opts:["12 meses para Caio, 3 para Renata e 6 para Augusto.","6 meses para Caio, 12 para Renata e 3 para Augusto.","3 meses para Caio, 12 para Renata e 6 para Augusto.","6 meses para Caio, 3 para Renata e 12 para Augusto."],
+ c:3,
+ why:"A reserva cresce com a instabilidade da renda e com a dificuldade de recolocação. Caio é jovem mas tem emprego instável: 6 meses. Renata tem estabilidade de servidora: 3 meses bastam, apesar dos filhos. Augusto tem a renda mais volátil, às vezes abaixo das despesas, e mais idade: 12 meses.",
+ wrong:["Inverte Caio e Augusto: quem tem renda que pode ficar abaixo das despesas precisa da maior reserva.","Dá a maior reserva a quem tem mais estabilidade e a menor a quem tem renda mais volátil.","Subestima a instabilidade de Caio e superestima o risco de Renata.",null],
+ key:"Estabilidade de renda pesa mais que número de dependentes no tamanho da reserva."},
+
+{id:"6",pd:"2.1.4.4",nivel:"Aplicação",dif:"Médio",tema:"2.3",
+ ctx:"Gustavo, 34 anos, casado, uma filha pequena, é servidor público com renda estável e gasta praticamente tudo o que ganha. Ele quer saber como proteger a família de imprevistos.",
+ q:"A orientação correta é que Gustavo:",
+ opts:["Pode começar pela renda variável, pensando na aposentadoria.","Deve formar uma reserva de emergência de cerca de seis meses de despesas da família.","Deve aplicar em títulos prefixados para maximizar o retorno esperado.","Pode manter o padrão de consumo, porque a estabilidade do cargo já o protege."],
+ c:1,
+ why:"Sem nenhuma reserva, a prioridade é formá-la antes de qualquer outro investimento. Ela protege a família de imprevistos como saúde, conserto ou perda de renda do cônjuge.",
+ wrong:["Investir em risco sem reserva expõe a família a vender na hora errada.",null,"Prefixado não é instrumento de reserva: oscila com os juros antes do vencimento.","Estabilidade do emprego não cobre gastos inesperados. Gastar tudo deixa a família sem proteção."],
+ key:"Sem reserva, ela vem antes de qualquer outro objetivo."},
+
+{id:"7",pd:"2.2.1.4",nivel:"Análise",dif:"Fácil",tema:"2.5",
+ ctx:"Um cliente conservador, avesso a perdas, resgata com frequência de 20% a 25% do capital para cobrir despesas. A carteira tem 20% em Tesouro Selic, 20% em CDB de banco sólido (100% a 110% do CDI), 20% em LCI e LCA e 40% em Tesouro IPCA+ com vencimento em 2 anos.",
+ q:"O principal ajuste a recomendar é:",
+ opts:["Aumentar LCI e LCA pela isenção de IR, mantendo liquidez imediata para os resgates.","Manter IPCA+ e LCI/LCA, porque prazo e carência não afetam os resgates de curto prazo.","Reduzir o Tesouro IPCA+ e realocar parte em ativos de liquidez diária, como Tesouro Selic ou CDBs líquidos.","Trocar o Tesouro Selic por debêntures incentivadas de IPCA em busca de ganho real maior."],
+ c:2,
+ why:"Com resgates frequentes, 40% em IPCA+ é arriscado: se precisar vender antes do vencimento, o título é marcado a mercado e pode render menos ou até perder. Ativos de liquidez diária atendem o caixa sem esse risco.",
+ wrong:["LCI e LCA costumam ter carência e não dão liquidez imediata.","Prazo e carência afetam diretamente quem precisa resgatar com frequência.",null,"Debêntures têm menor liquidez e mais risco de mercado. É o oposto do que o cliente precisa."],
+ key:"Necessidade de caixa frequente pede liquidez diária e pouca marcação a mercado."},
+
+{id:"8",pd:"2.2.1.4",nivel:"Aplicação",dif:"Médio",tema:"2.5",
+ ctx:"Larissa, 30 anos, solteira, servidora com renda líquida de R$ 20 mil, está começando a investir. Objetivos: reserva de seis meses de despesas (R$ 12 mil por mês), comprar um imóvel em até 10 anos e uma viagem por ano de R$ 15 mil. Perfil moderado.",
+ q:"A recomendação mais adequada é:",
+ opts:["Dividir igualmente entre os três objetivos, com a reserva em LCI de 90 dias.","Destinar os primeiros aportes à reserva em Tesouro Selic e CDBs de liquidez diária até R$ 72 mil e, depois, aplicar para o imóvel em ativos mais longos e para a viagem em fundo DI.","Aplicar 50% em multimercados conservadores com resgate em D+15 para a reserva.","Usar CDBs com liquidez no vencimento, LCIs longas e debêntures em todos os objetivos."],
+ c:1,
+ why:"A reserva vem primeiro (6 × R$ 12 mil = R$ 72 mil) e precisa de liquidez diária e baixo risco. Depois, cada objetivo recebe ativos coerentes com o prazo: longo para o imóvel, liquidez para a viagem anual.",
+ wrong:["LCI com carência de 90 dias não serve como reserva, e dividir igual atrasa a reserva.",null,"D+15 e oscilação de multimercado não combinam com reserva de emergência.","Ativos sem liquidez imediata deixam a reserva e a viagem descobertas."],
+ key:"Reserva primeiro, em liquidez diária. Depois, prazo do objetivo define o ativo."},
+
+{id:"9",pd:"2.3.3",nivel:"Aplicação",dif:"Fácil",tema:"2.6",
+ ctx:"Henrique, 42 anos, engenheiro e consultor, tem renda líquida de R$ 25 mil por mês e patrimônio de R$ 600 mil (R$ 50 mil com liquidez). Paga R$ 8 mil de financiamento imobiliário (10% a.a.), R$ 4,5 mil de empréstimo pessoal (24% a.a.), cerca de R$ 2 mil de cartão e R$ 10 mil de despesas da família. Ele quer investir num multimercado moderado.",
+ q:"Depois de analisar o endividamento, a conclusão correta é:",
+ opts:["As dívidas são de longo prazo, então a carteira pode ser preservada sem ajustes.","O endividamento é compatível com a renda e o patrimônio, e os compromissos podem continuar.","A folga do orçamento é muito pequena, e o foco deve ser reduzir dívidas antes de novos investimentos.","O fluxo positivo e o patrimônio indicam boa capacidade para investir."],
+ c:2,
+ why:"Parcelas de dívida: 8 + 4,5 = R$ 12,5 mil, ou 50% da renda. Somando cartão e despesas, os gastos chegam a R$ 24,5 mil e sobram só R$ 500. O empréstimo a 24% ao ano custa mais do que um multimercado tende a render. Quitar ou reduzir essa dívida é o melhor investimento agora.",
+ wrong:["O empréstimo pessoal é caro e pressiona o caixa todo mês.","Comprometer 50% da renda com dívidas e sobrar R$ 500 não é situação confortável.",null,"Sobra muito pouco por mês, e a maior parte do patrimônio não tem liquidez."],
+ key:"Antes de investir, compare o custo da dívida com o retorno esperado e veja a folga do orçamento."},
+
+{id:"10",pd:"2.4.3",nivel:"Aplicação",dif:"Fácil",tema:"2.7",
+ ctx:"Fábio quer investir o bônus anual por cinco anos, mas admite que pode usar parte se surgir uma oportunidade de negócio. Diz que não aceita perda nenhuma no curto prazo e que precisa de acesso rápido ao dinheiro. O questionário o classificou como moderado.",
+ q:"A adequação correta entre perfil e produto é:",
+ opts:["Manter o perfil e explicar melhor a volatilidade.","Recomendar fundos de prazo longo, porque o objetivo declarado é de médio prazo.","Manter o perfil moderado e aplicar parte em ações para aproveitar os cinco anos.","Rever o perfil efetivo para conservador, pela aversão a perdas e pela incerteza sobre quando o dinheiro será usado."],
+ c:3,
+ why:"O prazo real manda mais que o prazo declarado. Se o dinheiro pode ser usado a qualquer momento e o cliente não aceita perder nada, o perfil efetivo é conservador, com prioridade para liquidez e preservação.",
+ wrong:["Explicar a volatilidade não resolve a incompatibilidade entre o produto e a necessidade real.","Prazo longo e resgate incerto não combinam.","Ações oscilam e podem estar em queda justamente quando ele precisar do dinheiro.",null],
+ key:"Prazo incerto e aversão a perdas tornam o perfil efetivo conservador."},
+
+{id:"11",pd:"2.4.4",nivel:"Análise",dif:"Médio",tema:"2.7",
+ ctx:"Marcelo, 38 anos, tem R$ 600 mil em multimercados e um PGBL de longo prazo. Avisa a profissional que pretende mudar de carreira em três anos e pode usar parte das reservas para abrir um negócio. O perfil é moderado, com horizonte longo, mas o questionário não previa uso antecipado dos recursos.",
+ q:"Diante da nova informação, a profissional deve:",
+ opts:["Reavaliar o horizonte e tratar o dinheiro do negócio como objetivo separado, com liquidez e risco compatíveis.","Manter a classificação e anotar a observação, já que o uso antecipado não invalida o horizonte original.","Reduzir o risco de todos os investimentos, porque a mudança de carreira torna o perfil conservador.","Aumentar o risco para acelerar ganhos enquanto ele ainda tem renda estável."],
+ c:0,
+ why:"Surgiu um objetivo de curto prazo (3 anos) que convive com o de longo prazo. O certo é separar: uma parcela de baixo risco e boa liquidez para o negócio, e o restante segue no plano de longo prazo.",
+ wrong:[null,"Uma necessidade concreta de liquidez em 3 anos muda a análise. Só anotar não protege o cliente.","Não é preciso derrubar o risco de tudo: só a parte destinada ao negócio muda.","Aumentar risco com uso previsto em 3 anos pode deixar o dinheiro em queda na hora de usar."],
+ key:"Objetivos diferentes, carteiras diferentes. Novo evento exige revisão do perfil e da alocação."},
+
+{id:"12",pd:"3.2.1.4",nivel:"Aplicação",dif:"Fácil",tema:"3.2",
+ ctx:"Joana, investidora iniciante, estranhou variações nos extratos. Ela tem (1) LFT, (2) LTN, (3) CDB pós-fixado em CDI e (4) RDB prefixado. Nos últimos meses, a inflação ficou estável e a Selic caiu.",
+ q:"Com Selic em queda e inflação estável, a explicação correta é:",
+ opts:["1 é o que mais se valoriza por marcação a mercado; 2 varia pouco; 3 rende CDI mais devagar; 4 rende a taxa contratada.","3 mostra a maior valorização por marcação a mercado; 1 e 2 oscilam pouco; 4 rende a taxa contratada.","2 tende a se valorizar por marcação a mercado; 1 varia pouco; 3 rende CDI em ritmo menor; 4 rende a taxa contratada, sem efeito de preço.","4 é o que mais se valoriza por marcação a mercado; 1 varia pouco; 3 rende CDI mais devagar; 2 avança aos poucos."],
+ c:2,
+ why:"A LTN é prefixada e sem cupom: quando os juros caem, o preço sobe (marcação a mercado positiva). A LFT acompanha a Selic dia a dia e quase não oscila de preço. O CDB em CDI continua rendendo o CDI, só que menor. O RDB prefixado não tem mercado secundário e apropria a taxa contratada ao longo do tempo.",
+ wrong:["A LFT tem baixíssima sensibilidade a juros. Quem mais oscila é o prefixado.","CDB atrelado ao CDI não tem efeito relevante de marcação a mercado.",null,"RDB não é negociável e, por isso, não sofre marcação a mercado como o título público."],
+ key:"Juros caem: prefixados sobem de preço. Pós-fixados quase não oscilam."},
+
+{id:"13",pd:"3.2.1.4",nivel:"Análise",dif:"Difícil",tema:"3.2",
+ ctx:"Um cliente tem R$ 200 mil para títulos públicos por 4 anos. No mercado primário, um Tesouro Prefixado é emitido a R$ 1.000 de valor de face com taxa de 9% ao ano. No secundário, o mesmo título é negociado a R$ 850, porque os juros subiram e novos prefixados pagam 12% ao ano.",
+ q:"O profissional deve explicar que:",
+ opts:["Comprar no primário é melhor, porque garante o valor de face no vencimento sem oscilações.","A duration no secundário é menor, o que reduz a sensibilidade e justifica o preço mais baixo.","Comprar no secundário rende menos, porque o deságio é compensado por menos cupons.","Comprar no secundário dá retorno maior que o do primário, porque o deságio eleva a rentabilidade efetiva."],
+ c:3,
+ why:"Pagando R$ 850 por um título que paga R$ 1.000 no vencimento, a taxa efetiva (yield to maturity) fica acima dos 9%, perto da nova taxa de mercado de 12%. O deságio é justamente o ajuste do preço à taxa mais alta.",
+ wrong:["Os dois pagam o mesmo valor de face no vencimento. Quem compra mais barato ganha mais.","A duration de um prefixado sem cupom depende do prazo, não do mercado em que é comprado.","Prefixado sem cupom não paga cupons. O deságio aumenta o retorno.",null],
+ key:"Preço e taxa andam em sentidos opostos: comprar com deságio eleva a taxa efetiva."},
+
+{id:"14",pd:"3.2.1.3.2.3",nivel:"Aplicação",dif:"Médio",tema:"3.4",
+ ctx:"Otávio, de patrimônio elevado, recebeu há pouco R$ 500 mil do FGC por causa da liquidação de duas instituições em que aplicava. Hoje ele tem R$ 400 mil em CDB do Banco Gama (rating BB-), R$ 350 mil em CDB do Banco Ômega (B), R$ 200 mil em LCI do Banco Kappa (BBB), R$ 100 mil em LC da Financeira Delta (BB), R$ 200 mil em debêntures de uma construtora e R$ 150 mil em Tesouro Selic.",
+ q:"Considerando o FGC, além de acompanhar os vencimentos para não perder no resgate, o profissional deve orientar Otávio a, aos poucos:",
+ opts:["Reduzir a exposição total em ativos cobertos pelo FGC para no máximo R$ 500 mil e levar o excedente para títulos públicos ou emissores com grau de investimento.","Limitar cada CDB a R$ 250 mil por instituição e completar com LCI e LC até R$ 250 mil por instituição.","Trocar ativos com FGC por debêntures, que não consomem o limite e rendem parecido.","Trocar todos os CDBs por LCIs e LCs, que teriam garantia própria e seriam seguras sem limite."],
+ c:0,
+ why:"Além do limite de R$ 250 mil por CPF e conglomerado, o FGC tem um teto de R$ 1 milhão por CPF a cada 4 anos. Otávio já usou R$ 500 mil desse teto, então só restam R$ 500 mil de cobertura. O excedente deve ir para título público ou emissores de melhor crédito.",
+ wrong:[null,"Respeita o limite por instituição, mas ignora o teto global de R$ 1 milhão em 4 anos, do qual metade já foi usada.","Debêntures não têm FGC: trocam risco coberto por risco descoberto.","LCI e LC também dependem do FGC, com os mesmos limites."],
+ key:"FGC: R$ 250 mil por CPF por conglomerado e teto de R$ 1 milhão a cada 4 anos.",
+ note:"No caderno original, o motivo do reembolso aparece como recuperação judicial das instituições. Bancos não passam por recuperação judicial: o FGC paga quando há intervenção ou liquidação extrajudicial decretada pelo Banco Central. Por isso a questão foi adaptada."},
+
+{id:"15",pd:"3.2.1.3.3.3",nivel:"Aplicação",dif:"Médio",tema:"3.4",
+ ctx:"Paula valida fichas técnicas de produtos bancários. Um CDB de banco médio tem: IPCA + 5,2% a.a., prazo de 5 anos, carência de 180 dias, liquidez só no vencimento, rating BB+ e custódia na B3.",
+ q:"A validação correta da ficha é:",
+ opts:["Pedir correção da custódia, porque ativos bancários ficam no Selic, e indicar que BB+ é baixo risco.","Validar como prefixado, com liquidez compatível e rating adequado para distribuição ampla.","Confirmar remuneração híbrida, liquidez restrita, risco de crédito elevado e registro correto na B3.","Reprovar por ter remuneração pós-fixada e liquidez diária incompatíveis com o prazo."],
+ c:2,
+ why:"IPCA + taxa é remuneração híbrida (parte prefixada, parte inflação). Liquidez só no vencimento é restrita. BB+ está abaixo do grau de investimento (que vai até BBB-), então o risco de crédito é elevado. CDBs são registrados na B3, não no Selic, que custodia títulos públicos.",
+ wrong:["O Selic é para títulos públicos federais. E BB+ é grau especulativo.","Não é prefixado, e o rating não é de baixo risco.",null,"A ficha diz liquidez no vencimento e remuneração híbrida, não pós-fixada com liquidez diária."],
+ key:"IPCA+ = híbrido. Abaixo de BBB- = especulativo. CDB fica na B3, título público no Selic."},
+
+{id:"16a",pd:"3.2.1.4.3.4",nivel:"Análise",dif:"Fácil",tema:"3.2",caso:"Caso: a carteira de Célia e Jorge",
+ ctx:"Célia e Jorge, perto dos 50 anos, querem montar uma carteira de R$ 1 milhão em renda fixa para complementar a aposentadoria com previsibilidade. A gestora explica que prazos longos oscilam mais com os juros, que cupons encurtam a duration e que crédito privado pode perder com a abertura de spreads. Ela compara quatro títulos: A, Tesouro Prefixado de 2 anos, duration 2, liquidez alta. B, CRI IPCA+ de 10 anos com cupom, duration 7,8, liquidez média. C, debênture de infraestrutura IPCA+ de 15 anos com cupom, duration 9,5, liquidez média. D, Tesouro Selic de 1 a 2 anos, duration 0,2, liquidez alta. O casal quer separar uma parte para despesas dos próximos dois anos, com baixa volatilidade e resgate fácil.",
+ q:"O título que atende a esse pedido é:",
+ opts:["A debênture de infraestrutura, por pagar cupons e corrigir pela inflação.","O CRI IPCA+, que preserva o poder de compra e paga cupons.","O Tesouro Prefixado de curto prazo, que tem alta liquidez.","O Tesouro Selic, com alta liquidez, baixa volatilidade e duration muito curta."],
+ c:3,
+ why:"Para despesas em até dois anos, o ideal é o ativo que quase não oscila e pode ser resgatado a qualquer momento. O Tesouro Selic tem duration de 0,2 e liquidez alta.",
+ wrong:["Duration de 9,5 e liquidez média: oscila muito e pode ser difícil vender.","Duration de 7,8: sensível aos juros reais e menos líquido.","Tem liquidez, mas o preço cai se os juros subirem de forma inesperada antes do vencimento.",null],
+ key:"Despesas de curto prazo: baixa duration e alta liquidez."},
+
+{id:"16b",pd:"3.2.1.4.3.4",nivel:"Análise",dif:"Fácil",tema:"3.2",caso:"Caso: a carteira de Célia e Jorge",
+ ctx:"Continuação do caso de Célia e Jorge. A profissional simula uma alta de 1 ponto percentual na curva de juros reais.",
+ q:"O comportamento esperado é que o preço de:",
+ opts:["C caia mais que o de B.","B caia mais que o de C.","B e C caiam na mesma proporção.","B e C fiquem estáveis."],
+ c:0,
+ why:"Pela duration modificada, a variação de preço é aproximadamente −duration × variação da taxa. C (9,5) cai perto de 9,5%. B (7,8), perto de 7,8%. Maior duration, maior sensibilidade.",
+ wrong:[null,"B tem duration menor, então cai menos.","Durations diferentes geram quedas diferentes.","Títulos indexados a IPCA também são marcados a mercado pela taxa real."],
+ key:"Variação de preço ≈ −duration modificada × variação da taxa."},
+
+{id:"17",pd:"3.3.4",nivel:"Análise",dif:"Fácil",tema:"3.7",
+ ctx:"Uma corretora participa do IPO de uma empresa de tecnologia, com faixa indicativa de R$ 18 a R$ 22 definida no bookbuilding e demanda institucional moderada. Um cliente moderado, com 80% da carteira em renda fixa, diz que essas ações sempre sobem na estreia e quer aplicar o máximo. O cenário é de juros subindo e menos liquidez global para empresas de crescimento.",
+ q:"A profissional deve:",
+ opts:["Recomendar subscrição total, porque IPO dá diversificação e ganho rápido.","Sugerir participação parcial e explicar que o preço final depende do bookbuilding e do mercado, podendo haver queda no início.","Aconselhar a não participar, porque juros altos impedem qualquer valorização.","Executar a vontade do cliente depois de mostrar o prospecto e registrar a ciência dos riscos."],
+ c:1,
+ why:"O papel do profissional é educar e adequar. IPO não garante alta na estreia, sobretudo com demanda moderada e juros subindo. Uma participação parcial respeita o interesse do cliente e o perfil moderado.",
+ wrong:["Ignora o cenário e o perfil, e reforça uma crença errada.",null,"Absoluto demais: juros altos pesam, mas não impedem valorização.","Registrar ciência não substitui orientação sobre adequação e risco."],
+ key:"IPO: preço sai do bookbuilding e não há garantia de alta na estreia."},
+
+{id:"18",pd:"3.4.3",nivel:"Aplicação",dif:"Médio",tema:"3.11",
+ ctx:"Um investidor aplicou R$ 200 mil num COE de 3 anos ligado a uma cesta de ações internacionais e recebeu R$ 190 mil no vencimento. No mesmo ano, teve R$ 12 mil de ganho tributável com ações na B3, em operações comuns. Ele quer usar a perda do COE para reduzir o DARF das ações.",
+ q:"O profissional deve explicar que:",
+ opts:["O saldo negativo pode ser usado contra ganhos futuros em renda fixa.","A perda pode ser compensada integralmente com o ganho em ações.","Ele pode pedir restituição do IR retido no COE e abater do DARF.","A perda no COE não pode ser compensada com os ganhos em ações."],
+ c:3,
+ why:"A IN RFB 1.585/2015 proíbe compensar perdas em COE com ganhos líquidos em renda variável. O COE segue as regras da renda fixa, e a compensação entre classes de ativos diferentes não é permitida.",
+ wrong:["Não existe essa compensação com renda fixa.","É justamente o que a norma proíbe.","Não houve IR retido, porque houve perda. E IR de um produto não abate DARF de outro.",null],
+ key:"Perda de COE não compensa ganho em ações."},
+
+{id:"19",pd:"3.5.1.2",nivel:"Aplicação",dif:"Médio",tema:"3.13",
+ ctx:"Um cliente moderado, que já tem renda fixa e ações brasileiras, quer exposição internacional por meio de um ETF que replica o S&P 500. O profissional avalia o câmbio e a adequação ao perfil.",
+ q:"A variação cambial nesse investimento:",
+ opts:["Pode aumentar ou diminuir o retorno em reais.","Não afeta o retorno, porque o ETF é negociado em reais.","Só afeta o retorno se o ETF for muito volátil.","É irrelevante, porque o retorno em reais é fixo."],
+ c:0,
+ why:"Os ativos do índice são cotados em dólar. Se o dólar sobe, o retorno em reais aumenta. Se cai, diminui. Negociar a cota em reais na B3 não elimina essa exposição.",
+ wrong:[null,"A cota é em reais, mas a carteira por trás é em dólar.","O efeito cambial existe independentemente da volatilidade do ETF.","Não há retorno fixo em ETF de ações."],
+ key:"ETF de índice estrangeiro carrega o risco do índice e o do câmbio."},
+
+{id:"20",pd:"3.5.1.4",nivel:"Análise",dif:"Fácil",tema:"3.12",
+ ctx:"Para um cliente private, o profissional sugere uma nova classe de um multimercado alavancado, sob a CVM 175, com derivativos e risco de perdas maiores que o capital investido. O regulamento prevê responsabilidade ilimitada dos cotistas.",
+ q:"Para garantir a ciência do investidor, o profissional deve:",
+ opts:["Informar que perdas além do capital são responsabilidade do administrador e do gestor.","Colher a assinatura do investidor atestando que responde, com recursos próprios, por eventual patrimônio líquido negativo da classe.","Considerar a entrega da lâmina com o aviso de alavancagem como prova de ciência.","Validar o perfil agressivo na API, que já cobre a aceitação de perdas acima do capital."],
+ c:1,
+ why:"Na CVM 175, a regra geral é a responsabilidade limitada ao valor das cotas. Se a classe tem responsabilidade ilimitada, o distribuidor precisa colher a assinatura do investidor em termo específico, formalizando que ele pode ter de aportar mais dinheiro se o patrimônio ficar negativo.",
+ wrong:["Na responsabilidade ilimitada, quem cobre o patrimônio negativo é o cotista.",null,"Entregar a lâmina não basta: a norma exige termo assinado.","Suitability é necessário, mas não substitui o termo de ciência da responsabilidade ilimitada."],
+ key:"Responsabilidade ilimitada exige termo específico assinado pelo cotista."},
+
+{id:"21",pd:"3.5.1.3.3.1.4",nivel:"Aplicação",dif:"Médio",tema:"3.13",
+ ctx:"Um cliente moderado se interessa por um ETF setorial, mas nota que a cota negocia pouco na bolsa e teme não conseguir comprar ou vender sem mexer no preço.",
+ q:"Para tranquilizá-lo, o profissional explica que a liquidez do ETF é:",
+ opts:["Medida só pelo volume diário na bolsa, que reflete a oferta e a procura.","Garantida pelos Participantes Autorizados que negociam ativamente as cotas no secundário.","Igual à de um fundo fechado, dependendo de o gestor recomprar as cotas.","Sustentada pelos Participantes Autorizados, que criam e resgatam cotas no mercado primário com base na liquidez dos ativos do índice."],
+ c:3,
+ why:"Se a cota se afasta do valor da carteira, os Participantes Autorizados criam ou resgatam cotas entregando ou recebendo a cesta de ativos. Por isso, a liquidez de um ETF depende mais da liquidez dos ativos do índice do que do volume da cota.",
+ wrong:["O volume da cota é só parte da história. O mecanismo de criação e resgate amplia a liquidez.","O papel central dos Participantes Autorizados está no mercado primário, criando e resgatando cotas.","ETF não é fundo fechado e não depende de recompra pelo gestor.",null],
+ key:"Liquidez do ETF: criação e resgate no primário, lastreados nos ativos do índice."},
+
+{id:"22",pd:"3.5.1.3.3.1.4",nivel:"Aplicação",dif:"Médio",tema:"3.14",
+ ctx:"Um cliente moderado quer renda mensal com FIIs de tijolo e de papel, concentrando o dinheiro em poucos fundos. Ele se preocupa com a tributação dos rendimentos.",
+ q:"Os principais requisitos de isenção dos rendimentos que o analista deve observar, do lado do cotista, são:",
+ opts:["Ter menos de 5% das cotas e renda anual abaixo de R$ 40 mil.","Investir só em FII de tijolo e declarar os rendimentos como isentos.","Aplicar ao menos R$ 1 mil por fundo e manter as cotas por mais de 365 dias.","Ter menos de 10% das cotas e ser pessoa física."],
+ c:3,
+ why:"A isenção é só para pessoa física e exige que o cotista tenha menos de 10% das cotas e dos rendimentos do fundo. O fundo também precisa cumprir requisitos próprios: cotas negociadas só em bolsa ou balcão organizado e pelo menos 100 cotistas, número fixado pela Lei 14.754/2023.",
+ wrong:["Não existe limite de 5% nem de renda anual.","A isenção vale para tijolo e papel.","Não há valor mínimo nem prazo de permanência.",null],
+ key:"FII isento: PF, menos de 10% das cotas, fundo em bolsa com 100 cotistas ou mais.",
+ note:"Questões como esta, quando concentram o cliente em poucos fundos, testam o limite de 10%: se ele chegar a 10% ou mais de um fundo, perde a isenção naquele fundo."},
+
+{id:"23",pd:"3.5.1.3.8.3",nivel:"Aplicação",dif:"Médio",tema:"3.14",
+ ctx:"Rubens, empresário do agro, tem CDBs e fundos DI e quer renda mensal. O profissional apresenta os Fiagros como alternativa para seu perfil moderado, e Rubens quer entender a tributação dos rendimentos.",
+ q:"Pelo regime em vigor, a principal característica fiscal a considerar é:",
+ opts:["IR de 15% sobre os rendimentos, retido pelo administrador.","Isenção permanente de IR sobre rendimentos e ganho de capital, sem condições.","Isenção de IR sobre os rendimentos para pessoa física, desde que o fundo tenha cotas negociadas em bolsa e cumpra os critérios legais.","Tabela regressiva da renda fixa, de 22,5% a 15%."],
+ c:2,
+ why:"O Fiagro segue a regra do FII: rendimentos isentos para pessoa física se o fundo for negociado em bolsa ou balcão organizado, tiver o número mínimo de cotistas e o cotista tiver menos de 10% das cotas. O ganho de capital na venda das cotas paga 20%.",
+ wrong:["Rendimentos de Fiagro para PF são isentos nas condições legais.","Há condições, e o ganho de capital é tributado.",null,"Fiagro não segue a tabela regressiva."],
+ key:"Fiagro: mesma lógica do FII. Rendimento isento para PF, ganho de capital a 20%.",
+ note:"O caderno original fala em mínimo de 50 cotistas. Desde a Lei 14.754/2023, o mínimo é de 100 cotistas. Na prova, se aparecer o número, use 100."},
+
+{id:"24",pd:"3.6.1.4",nivel:"Análise",dif:"Difícil",tema:"3.17",
+ ctx:"Wagner, residente no Brasil, perfil moderado, quer diversificar e proteger parte do capital em moeda forte. Ele compara títulos corporativos americanos com grau de investimento (5 anos, 5% ao ano) e títulos soberanos de emergentes em dólar (8% ao ano, mais risco de crédito). A Selic está em 10,75%.",
+ q:"A recomendação de renda fixa internacional deve priorizar:",
+ opts:["Títulos corporativos high yield.","Títulos soberanos de emergentes de alto rendimento.","Títulos corporativos com grau de investimento em moeda forte.","Títulos longos em moedas locais de emergentes."],
+ c:2,
+ why:"Para um moderado que busca proteção em moeda forte, títulos com grau de investimento em dólar equilibram retorno, risco de crédito e liquidez. O objetivo é proteção, não maximizar a taxa.",
+ wrong:["High yield traz risco de crédito alto e oscila como ações em crises.","Retorno maior com risco de crédito maior, fora do objetivo de proteção.",null,"Moeda local de emergente acrescenta risco cambial e não protege em moeda forte."],
+ key:"Proteção em moeda forte para moderado: grau de investimento em dólar."},
+
+{id:"25",pd:"3.6.2.3",nivel:"Aplicação",dif:"Fácil",tema:"3.18",
+ ctx:"Tânia quer ações de tecnologia listadas na Nasdaq, mas se preocupa com o câmbio e com a tributação de dividendos. O analista precisa escolher que produto apresentar.",
+ q:"Segundo o gabarito do caderno, a opção mais adequada é:",
+ opts:["GDRs, que dão mais diversificação em ações internacionais.","Ações listadas na Nasdaq, evitando custos de intermediários.","ADRs, que dão acesso a ações em dólar com menos volatilidade cambial.","Ações de tecnologia na NYSE, para reduzir custos de corretagem no Brasil."],
+ c:2,
+ why:"O caderno considera os ADRs a resposta, por darem acesso a ações listadas nos Estados Unidos com tratamento mais simples para a pessoa física.",
+ wrong:["GDRs são negociados em outros mercados, como Londres e Luxemburgo, e não resolvem o foco em Nasdaq.","Comprar direto exige conta no exterior e intermediários, além de câmbio.",null,"Trocar a bolsa não resolve câmbio nem tributação."],
+ key:"ADR: certificado negociado nos EUA que representa ações de empresa estrangeira.",
+ note:"Atenção ao conceito. ADRs representam ações de empresas não americanas negociadas nos Estados Unidos, e continuam cotados em dólar. Para quem está no Brasil e quer empresas da Nasdaq sem abrir conta lá fora, o caminho mais comum são os BDRs, negociados na B3 em reais, que ainda assim carregam o risco do dólar. Guarde a resposta do caderno para a prova, mas use este conceito no atendimento."},
+
+{id:"26",pd:"3.7.1.3.4",nivel:"Análise",dif:"Médio",tema:"3.20",
+ ctx:"Cláudia, 42 anos, contribui para o INSS e tem renda bruta de R$ 11 mil por mês. Quer manter um padrão de R$ 7 mil por mês a partir dos 63 anos, e o INSS estimado é de R$ 4 mil em valores de hoje. Já investe em renda fixa e ações, mas nunca teve previdência. Na declaração de IR, as deduções somam perto de R$ 1 mil por ano.",
+ q:"A orientação mais consistente é:",
+ opts:["Priorizar o PGBL, porque a disciplina de aportes e o benefício fiscal são mais vantajosos.","Adiar a acumulação para mais perto da aposentadoria, quando a escolha do produto ficará mais clara.","Preferir fundos tradicionais, pela flexibilidade e por não seguirem as regras da previdência.","Escolher o VGBL, que não depende da dedução na declaração completa e tributa só os rendimentos."],
+ c:3,
+ why:"Deduções de apenas R$ 1 mil por ano indicam que ela usa o modelo simplificado. Sem declaração completa, o PGBL perde a vantagem da dedução e ainda tributa o valor total no resgate. O VGBL tributa só os rendimentos e serve para acumular a lacuna de R$ 3 mil por mês.",
+ wrong:["O benefício fiscal do PGBL só existe na declaração completa.","Adiar reduz o tempo de juros compostos e aumenta o esforço futuro.","Fundos têm come-cotas, e a previdência dá vantagens para acumular e para a sucessão.",null],
+ key:"Declaração simplificada: VGBL. Completa e contribuinte do regime oficial: PGBL até 12%.",
+ note:"Na vida real, vale simular os dois modelos de declaração. Com renda de R$ 11 mil e contribuição ao INSS, a dedução do PGBL pode tornar a declaração completa vantajosa. O caderno parte da premissa de que ela usa o simplificado."},
+
+{id:"27",pd:"3.7.1.1.4",nivel:"Análise",dif:"Médio",tema:"3.20",
+ ctx:"Valter, 55 anos, tem R$ 1,2 milhão em multimercados com come-cotas. Quer passar parte para a previdência para acumular até os 70 anos e facilitar a sucessão.",
+ q:"Comparando VGBL e multimercados, o profissional conclui que o VGBL:",
+ opts:["Combina com o plano: acumula sem come-cotas, tributa só os rendimentos e vai direto aos beneficiários, sem inventário.","Pode ser usado, mas a principal vantagem é deduzir 12% da renda bruta, mesmo na declaração simplificada.","Não é adequado, porque a sucessão exigirá inventário e o IR incidirá sobre o saldo total.","Pode ser usado até os 70 anos, mas só elimina o come-cotas, sem efeito na sucessão."],
+ c:0,
+ why:"O VGBL atende os dois objetivos. Na acumulação, não tem come-cotas, o que deixa o dinheiro rendendo por mais tempo. No resgate, o IR incide só sobre os rendimentos. Na sucessão, o saldo vai aos beneficiários indicados, fora do inventário.",
+ wrong:[null,"Dedução de 12% é do PGBL e só na declaração completa.","VGBL não passa por inventário e não tributa o saldo total.","Ignora a vantagem sucessória, que é um dos objetivos dele."],
+ key:"VGBL: sem come-cotas, IR só nos rendimentos, sucessão sem inventário."},
+
+{id:"28",pd:"3.8.3.4.3",nivel:"Análise",dif:"Fácil",tema:"3.24",
+ ctx:"Michele quer comprar um carro de R$ 30 mil. Tem R$ 20 mil em ether e um NFT de arte digital que também vale R$ 20 mil. Ela gostaria de vender partes iguais de cada ativo, sem se desfazer de nenhum por completo.",
+ q:"Com os valores atuais, o profissional explica que ela:",
+ opts:["Conseguirá comprar o carro vendendo partes iguais dos dois ativos.","Não conseguirá comprar o carro sem vender todo o NFT.","Não conseguirá comprar o carro sem vender todo o ether.","Só conseguirá comprar se vender os dois ativos inteiros."],
+ c:1,
+ why:"O ether é fungível e divisível: dá para vender qualquer fração. O NFT é único e indivisível: ou vende inteiro, ou não vende. Com ether sozinho ela só chega a R$ 20 mil, então precisa vender o NFT inteiro.",
+ wrong:["O NFT não pode ser vendido em partes.",null,"Mesmo vendendo todo o ether (R$ 20 mil), faltariam R$ 10 mil, e o NFT continua indivisível.","Não precisa vender tudo: o NFT inteiro mais R$ 10 mil em ether bastam."],
+ key:"NFT é não fungível e indivisível. Criptomoedas são fracionáveis."},
+
+{id:"29a",pd:"4.1.1.2.3",nivel:"Análise",dif:"Fácil",tema:"4.2",caso:"Caso: o investidor estrangeiro e a dívida brasileira",
+ ctx:"O Brasil debate mais gastos sociais e investimentos verdes, enquanto Chile e Peru seguem com superávits primários. Em 2024, a dívida bruta brasileira chegou a R$ 9,64 trilhões para um PIB de R$ 12,60 trilhões, perto de 76% do PIB, depois de subir na pandemia e se estabilizar em nível alto. Em Chile e Peru, a dívida fica abaixo de 40% do PIB. A carga tributária brasileira é maior que a dos vizinhos, com mais impostos indiretos, e o CDS de 5 anos do Brasil ficou acima do de Chile e Peru. Um investidor institucional estrangeiro quer entender como esses indicadores afetam o prêmio de risco e os títulos indexados à inflação, com dados padronizados e comparáveis internacionalmente.",
+ q:"O indicador que melhor reflete a credibilidade da política fiscal brasileira é:",
+ opts:["O crescimento das despesas obrigatórias.","A composição tributária com mais impostos indiretos.","O nível de investimento público recente.","A trajetória da relação dívida/PIB."],
+ c:3,
+ why:"A dívida/PIB resume a capacidade de o governo honrar compromissos e é a métrica fiscal mais usada em comparações internacionais, com metodologia padronizada por organismos como o FMI.",
+ wrong:["Importa, mas é um componente, não a medida síntese de solvência.","Fala da qualidade da tributação, não da sustentabilidade da dívida.","Não mede solvência.",null],
+ key:"Dívida/PIB: termômetro central da sustentabilidade fiscal."},
+
+{id:"29b",pd:"4.1.1.2.3",nivel:"Análise",dif:"Fácil",tema:"4.2",caso:"Caso: o investidor estrangeiro e a dívida brasileira",
+ ctx:"Continuação do caso do investidor estrangeiro.",
+ q:"A explicação mais consistente sobre a formação do prêmio de risco soberano é:",
+ opts:["O CDS brasileiro acima dos vizinhos reflete maior percepção de fragilidade fiscal.","O aumento recente das transferências sociais, por si só, eleva o prêmio exigido.","As pressões inflacionárias externas são o principal determinante do prêmio.","Cortes de tributos diretos elevam o prêmio, qualquer que seja a situação fiscal."],
+ c:0,
+ why:"O CDS é o preço do seguro contra calote do país. Se é mais alto que o dos pares, o mercado enxerga mais risco fiscal e exige prêmio maior nos títulos.",
+ wrong:[null,"O efeito depende da sustentabilidade da dívida, não de um gasto isolado.","Fatores externos influenciam, mas o caso aponta o fiscal doméstico.","Generalização sem relação com os dados apresentados."],
+ key:"CDS mais alto = maior risco percebido = prêmio maior."},
+
+{id:"30",pd:"4.2.2",nivel:"Compreensão",dif:"Médio",tema:"4.6",
+ ctx:"Leandro, 38 anos, empresário, formalizou a união estável depois de 7 anos morando junto, sem gestão conjunta dos investimentos. A carteira dele é quase toda de fundos de ações. A do companheiro tem debêntures e CDBs com liquidez só no vencimento. Leandro acha que, juntas, as carteiras atendem ao perfil do casal.",
+ q:"Depois de avaliar as carteiras, a especialista deve destacar:",
+ opts:["A abertura de uma conta conjunta para facilitar a gestão.","O alto risco dos investimentos e a chance de rever o perfil após a união.","A necessidade de ter parte dos recursos em ativos líquidos e de baixo risco para imprevistos.","O foco em ativos sem liquidez como boa estratégia de longo prazo."],
+ c:2,
+ why:"Nenhuma das duas carteiras tem liquidez imediata: ações oscilam e os títulos do companheiro só pagam no vencimento. Falta uma reserva de emergência para o casal.",
+ wrong:["Conta conjunta é questão operacional e não resolve a falta de liquidez.","O caso não indica perfil inadequado, e sim ausência de reserva.",null,"Sem liquidez, um imprevisto força venda com perda."],
+ key:"Evento de vida: revise a reserva de emergência antes de tudo."},
+
+{id:"31",pd:"4.2.2",nivel:"Compreensão",dif:"Médio",tema:"4.6",
+ ctx:"Aldo, 48 anos, vendeu um negócio da família por R$ 3 milhões. Quer pagar os estudos dos filhos nos próximos 5 anos, com custo total perto de R$ 1,5 milhão, e garantir a aposentadoria em 20 anos. Já tem R$ 500 mil (70% em renda fixa, 20% em multimercados, 10% em ações) e poupa cerca de R$ 5 mil por mês.",
+ q:"Os recursos da venda devem ser:",
+ opts:["Aplicados todos no longo prazo, porque a poupança mensal paga os estudos.","Divididos entre renda fixa de baixo risco com foco em liquidez e, o restante, entre multimercados e ações para o longo prazo.","Colocados em ações, porque o horizonte longo dilui o risco.","Investidos em multimercado, que atende liquidez e aposentadoria ao mesmo tempo."],
+ c:1,
+ why:"São dois objetivos com prazos muito diferentes. Os R$ 1,5 milhão dos estudos precisam de previsibilidade e liquidez. O restante pode buscar crescimento para a aposentadoria, respeitando o perfil dele.",
+ wrong:["R$ 5 mil por mês (R$ 300 mil em 5 anos) não cobrem R$ 1,5 milhão.",null,"Ações não servem para um gasto que começa já e dura 5 anos.","Um único produto não atende objetivos com prazos tão diferentes."],
+ key:"Dois objetivos, duas alocações: liquidez para o curto prazo, crescimento para o longo."},
+
+{id:"32",pd:"4.2.5.2",nivel:"Análise",dif:"Fácil",tema:"4.6",
+ ctx:"Nelson, 52 anos, perfil arrojado, quer abrir uma ONG de educação em até 5 anos sem comprometer a aposentadoria daqui a 15 anos. A carteira dele está concentrada em ações de tecnologia muito voláteis e em multimercados com posições táticas em câmbio.",
+ q:"O analista deve sugerir:",
+ opts:["Concentrar ainda mais em ações de tecnologia para ter mais recursos para a ONG.","Levar parte para fundos cambiais como proteção contra as incertezas da ONG.","Rebalancear parte da carteira para renda fixa de curto e médio prazo atrelada à inflação, dando previsibilidade ao dinheiro da ONG.","Realocar parte em multimercados macro para ter segurança e liquidez."],
+ c:2,
+ why:"O dinheiro da ONG tem prazo e uso definidos, então precisa de previsibilidade e proteção contra a inflação. A parte da aposentadoria, com 15 anos pela frente, pode seguir com mais risco, de acordo com o perfil.",
+ wrong:["Aumenta o risco justamente no dinheiro com prazo curto.","Câmbio não é proteção para um gasto em reais e acrescenta volatilidade.",null,"Multimercado macro não oferece previsibilidade para uma data definida."],
+ key:"Novo objetivo com data marcada: renda fixa compatível com o prazo."},
+
+{id:"33",pd:"4.9.2",nivel:"Aplicação",dif:"Médio",tema:"4.10",
+ ctx:"Rogério, perfil arrojado, compara dois multimercados com retornos parecidos, mas volatilidade e distribuição de resultados diferentes. As lâminas trazem o Sharpe original e o Sharpe modificado.",
+ q:"O consultor deve esclarecer que:",
+ opts:["O original usa retorno líquido de impostos e o modificado, só retornos brutos.","O modificado dispensa a taxa livre de risco, diferente do original.","O original considera média e desvio padrão, e o modificado incorpora assimetria e curtose, sendo melhor para ativos com retornos não normais.","O modificado é só uma mudança de nome, sem efeito na interpretação."],
+ c:2,
+ why:"O Sharpe original supõe retornos com distribuição normal, usando só média e desvio padrão. O modificado leva em conta a assimetria e as caudas grossas (curtose), capturando melhor o risco de fundos com derivativos e opções.",
+ wrong:["Nenhum dos dois é definido pelo tratamento de impostos.","O modificado mantém o prêmio sobre o ativo livre de risco no numerador.",null,"A diferença muda a avaliação de fundos com retornos assimétricos."],
+ key:"Sharpe modificado: incorpora assimetria e curtose (risco de cauda).",
+ note:"Alguns materiais chamam de Sharpe modificado a versão que usa um benchmark no lugar do ativo livre de risco (Sharpe generalizado). Na prova, se o enunciado falar em assimetria e curtose, é o modificado."}
+];
+
+// ============================================================
+// SIMULADO COMENTADO
+// ============================================================
+let smIdx=0,smAns=[],smDone=false;
+function smModOf(it){return parseInt(it.pd.split('.')[0],10)-1}
+function smTopicRef(num){
+  for(let mi=0;mi<modules.length;mi++){const ti=modules[mi].topics.findIndex(t=>t.num===num);if(ti>=0)return{mi,ti,title:modules[mi].topics[ti].title}}
+  return null;
+}
+function startSimu(){
+  
+  const t=document.getElementById('topTag');t.textContent='Simulado';t.className='tag t3';
+  curMod=null;smIdx=0;smAns=new Array(SIMU.length).fill(null);smDone=false;renderSimu();
+}
+function renderSimuIntro(){
+  const casos=new Set(SIMU.filter(x=>x.caso).map(x=>x.caso)).size;
+  document.getElementById('content').scrollTop=0;
+  document.getElementById('content').innerHTML=`
+<div class="sm-intro">
+  <div class="sm-badge">🎁 Bônus · Simulado comentado</div>
+  <div class="home-title">${SIMU_INFO.titulo}</div>
+  <p class="home-desc">${SIMU.length} questões no formato do exame, ${casos} delas em casos com duas perguntas. Depois de cada resposta, você vê por que a certa está certa e por que cada uma das outras está errada.</p>
+  <div class="sm-grid">
+    <div class="sm-stat"><b>${SIMU.length}</b><span>questões</span></div>
+    <div class="sm-stat"><b>${[0,1,2,3].map(m=>SIMU.filter(x=>smModOf(x)===m).length).join(' · ')}</b><span>por módulo (1 a 4)</span></div>
+    <div class="sm-stat"><b>70%</b><span>meta de acertos</span></div>
+  </div>
+  <div class="sm-src">${SIMU_INFO.fonte}</div>
+  <div class="home-actions">
+    <button class="btn btn-primary" onclick="renderSimu()">Começar</button>
+    
+  </div>
+</div>`;
+}
+function renderSimu(){
+  if(smIdx>=SIMU.length){smDone=true;renderSimuResult();return}
+  const it=SIMU[smIdx],a=smAns[smIdx];
+  const ok=smAns.filter((x,i)=>x!==null&&x===SIMU[i].c).length,feitas=smAns.filter(x=>x!==null).length;
+  document.getElementById('progBar').style.width=Math.round(smIdx/SIMU.length*100)+'%';
+  document.getElementById('content').scrollTop=0;
+  document.getElementById('content').innerHTML=`
+<div class="quiz-wrap">
+  <div class="q-score-bar">
+    <div class="q-circle">${ok}/${feitas}</div>
+    <div><div style="font-size:13px;font-weight:600;color:var(--text)">Questão ${smIdx+1} de ${SIMU.length}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">Módulo ${smModOf(it)+1} · ${modules[smModOf(it)].title}</div></div>
+  </div>
+  <div class="sm-nav" id="smNav">${SIMU.map((x,k)=>`<button class="sm-n ${k===smIdx?'cur':''} ${smAns[k]===null?'':(smAns[k]===x.c?'ok':'no')}" onclick="smIdx=${k};renderSimu()">${k+1}</button>`).join('')}</div>
+  <div class="sm-meta"><span>Programa ${it.pd}</span><span>${it.nivel}</span><span class="sm-dif sm-${it.dif.toLowerCase().replace('í','i')}">${it.dif}</span></div>
+  ${it.caso?`<div class="sm-case">${it.caso}</div>`:''}
+  <div class="sm-ctx"><div class="sm-lbl">Contexto</div>${it.ctx}</div>
+  <div class="q-text">${it.q}</div>
+  <div class="q-opts">${it.opts.map((o,i)=>`<button class="q-opt" id="sopt${i}" onclick="answerSimu(${i})">${String.fromCharCode(65+i)}) ${o}</button>`).join('')}</div>
+  <div id="sfb"></div>
+  <div class="q-actions">
+    ${smIdx>0?`<button class="btn btn-outline" onclick="smIdx--;renderSimu()">←</button>`:''}
+    <button class="btn btn-primary" id="snext" onclick="smIdx++;renderSimu()" style="flex:1">${smIdx===SIMU.length-1?'Ver resultado':'Próxima →'}</button>
+    <button class="btn btn-outline" onclick="startSimu()" title="Início do simulado">🏠</button>
+  </div>
+</div>`;
+  const cur=document.querySelector('.sm-n.cur');if(cur)cur.scrollIntoView({block:'nearest',inline:'center'});
+  if(a!==null)showSimuFb(a,false);
+}
+function answerSimu(i){
+  if(smAns[smIdx]!==null)return;
+  smAns[smIdx]=i;showSimuFb(i,true);
+}
+function showSimuFb(i,scroll){
+  const it=SIMU[smIdx],L=n=>String.fromCharCode(65+n);
+  document.querySelectorAll('.q-opt').forEach(b=>b.disabled=true);
+  document.getElementById('sopt'+it.c).classList.add('correct');
+  if(i!==it.c)document.getElementById('sopt'+i).classList.add('wrong');
+  const ref=smTopicRef(it.tema);
+  const outras=it.opts.map((o,k)=>k===it.c?'':`<li><b>${L(k)})</b> ${it.wrong[k]}</li>`).join('');
+  document.getElementById('sfb').innerHTML=`
+<div class="sm-fb ${i===it.c?'ok':'no'}">
+  <div class="sm-fb-head">${i===it.c?'✅ Você acertou':'❌ Resposta certa: '+L(it.c)}</div>
+  <div class="sm-sec"><div class="sm-lbl">Por que ${L(it.c)} está certa</div>${it.why}</div>
+  <div class="sm-sec"><div class="sm-lbl">Por que as outras não</div><ul>${outras}</ul></div>
+  <div class="sm-key">📌 ${it.key}</div>
+  ${it.note?`<div class="sm-note"><b>Atenção.</b> ${it.note}</div>`:''}
+  ${ref?`<div class="sm-topic">📖 No tutor: tema ${it.tema}, ${ref.title}</div>`:''}
+</div>`;
+  document.getElementById('snext').style.display='flex';
+  if(scroll)setTimeout(()=>{const e=document.getElementById('sfb');if(e)e.scrollIntoView({behavior:'smooth',block:'start'})},120);
+}
+function smOpenTopic(num){
+  const r=smTopicRef(num);if(!r)return;
+  showModule(r.mi,null);setBN(-1);
+  setTimeout(()=>{const el=document.getElementById('tc'+r.ti);if(el&&!el.classList.contains('open'))toggleTopic(r.ti)},80);
+}
+function renderSimuResult(){
+  const tot=SIMU.length,ok=smAns.filter((x,i)=>x===SIMU[i].c).length,pct=Math.round(ok/tot*100);
+  document.getElementById('progBar').style.width='100%';
+  const porMod=[0,1,2,3].map(m=>{const ids=SIMU.map((x,i)=>i).filter(i=>smModOf(SIMU[i])===m);const a=ids.filter(i=>smAns[i]===SIMU[i].c).length;return{m,a,t:ids.length}});
+  const erradas=SIMU.map((x,i)=>i).filter(i=>smAns[i]!==SIMU[i].c);
+  const temas=[...new Set(erradas.map(i=>SIMU[i].tema))].map(n=>({n,r:smTopicRef(n)})).filter(x=>x.r);
+  document.getElementById('content').scrollTop=0;
+  document.getElementById('content').innerHTML=`
+<div class="result-wrap">
+  <div class="result-emoji">${pct>=70?'🏆':pct>=50?'📊':'📖'}</div>
+  <div class="result-title">${pct>=70?'Dentro da meta':'Ainda abaixo da meta'}</div>
+  <div class="result-pct" style="color:${pct>=70?'#34d399':pct>=50?'#FF9E73':'#f87171'}">${pct}%</div>
+  <div class="result-sub">${ok} de ${tot} questões corretas</div>
+</div>
+<div class="sm-mods">${porMod.map(p=>`<div class="sm-mod"><div class="sm-mod-t">Módulo ${p.m+1}</div><div class="sm-bar"><i style="width:${p.t?Math.round(p.a/p.t*100):0}%"></i></div><div class="sm-mod-n">${p.a}/${p.t}</div></div>`).join('')}</div>
+${erradas.length?`<div class="sec-label">Revise as questões que errou</div>
+<div class="sm-list">${erradas.map(i=>`<button class="sm-li" onclick="smIdx=${i};renderSimu()"><b>${i+1}</b><span>${SIMU[i].q}</span><em>${SIMU[i].pd}</em></button>`).join('')}</div>`:''}
+${temas.length?`<div class="sec-label">Temas para revisar</div>
+<div class="sm-list">${temas.map(x=>`<button class="sm-li" style="cursor:default"><b>📖</b><span>${x.n} · ${x.r.title}</span></button>`).join('')}</div>`:''}
+<div class="result-actions" style="margin-top:16px">
+  <button class="btn btn-primary" onclick="startSimu()">🔄 Refazer</button>
+  <button class="btn btn-outline" onclick="startSimu()">🏠 Início</button>
+</div>`;
+}
+
+startSimu();
+</script>
+</body>
+</html>
